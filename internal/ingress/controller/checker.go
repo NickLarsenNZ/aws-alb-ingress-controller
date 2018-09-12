@@ -43,7 +43,7 @@ func (c *ALBController) Check(_ *http.Request) error {
 
 func (c *ALBController) runHealthChecks(interface{}) error {
 	glog.V(2).Infof("Executing AWS health checks")
-	for _, fn := range []func() error{
+	for i, fn := range []func() error{
 		albacm.ACMsvc.Status(),
 		albec2.EC2svc.Status(),
 		albelbv2.ELBV2svc.Status(),
@@ -51,7 +51,7 @@ func (c *ALBController) runHealthChecks(interface{}) error {
 	} {
 		err := fn()
 		if err != nil {
-			glog.Errorf("Controller health check failed: %v", err.Error())
+			glog.Errorf("Controller health check[%d] failed: %v", i, err.Error())
 			c.isHealthy = false
 			return nil
 		}
